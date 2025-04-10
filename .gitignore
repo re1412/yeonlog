@@ -1,0 +1,20 @@
+# Java & Spring Boot
+*.class
+*.log
+*.jar
+*.war
+*.iml
+.gradle/
+build/
+out/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDEs
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# OS
+.DS_Store
+Thumbs.db
