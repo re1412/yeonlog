@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="categoryFragment">
+    <div class="content_top">
+        <ul class="com_tag">
+            <li class="active"><span class="txt">All</span></li>
+            <li class=""><span class="txt">Category_A</span></li>
+            <li class=""><span class="txt">Category_B</span></li>
+            <li class=""><span class="txt">Category_C</span></li>
+        </ul>
+        <div class="wrap_breadcrumb">
+            <ol class="com_breadcrumbs">
+                <li class="item"><a href="#"><span class="ic_set ic_home" title="Home"></span>Home</a></li>
+                <li class="item active"><a href="#">Category_A</a></li>
+            </ol>
+        </div>
+    </div>
+</th:block>

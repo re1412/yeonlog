@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="orderRequesterFragment">
+    <div class="container">
+        <h2>주문자 정보</h2>
+        <div class="com_form">
+            <div class="wrap_row">
+                <div class="row">
+                    <label class="form_tit cell">
+                        <span class="txt">주문자명</span>
+                    </label>
+                    <div class="form_data cell">
+                        <div class="com_ipt">
+                            <input id="ipt_req_name" class="ipt_normal" type="text" value="김다우">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="wrap_row">
+                <div class="row">
+                    <label class="form_tit cell">
+                        <span class="txt">휴대폰 번호</span>
+                    </label>
+                    <div class="form_data cell">
+                        <div class="com_ipt">
+                            <input id="ipt_req_mobile" class="ipt_normal" type="text" value="010-5858-3030">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+      $(function () {
+        const user = JSON.parse(sessionStorage.getItem('user'));
+
+        // 화면 셋팅
+        //주문자 정보 셋팅
+        $('#ipt_req_name').val(user.name); //주문자명
+        $('#ipt_req_mobile').val(user.mobile); //휴대폰 번호
+      });
+
+    </script>
+</th:block>

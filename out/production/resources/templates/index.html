@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Yeon Store</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script type="module">
+      import {login} from "/assets/js/api/user.js";
+
+      document.addEventListener("DOMContentLoaded", async function () {
+        await login(); // 로그인
+        location.href = '/products';
+      });
+    </script>
+</head>
+<body></body>
+
+</html>

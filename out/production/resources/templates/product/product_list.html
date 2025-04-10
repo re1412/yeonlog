@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<div class="content_body" layout:fragment="content">
+    <ul class="wrap_container_item">
+        <li class="wrap_item" th:if="${false}">
+            <a class="figure" href=""><img src="/assets/images/img_item_02.png" alt=""></a>
+            <div class="item_summary">
+                <span class="txt shop">Californialife</span>
+                <span class="txt item ellipsis_clamp2">스포츠 리서치 오메가3 1250mg 180캡슐 rTG EPA DHA</span>
+                <span class="price">48,000원</span>
+            </div>
+        </li>
+    </ul>
+    <div th:replace="layout/common/pagination :: paginationFragment"></div>
+    <script src="/assets/js/api/product.js"></script>
+    <script>
+
+      $(function () {
+        // 화면 셋팅
+        setProducts(0, 8);
+      });
+
+      /**
+       * 초기 상품 조회내용 셋팅
+       * @param page
+       * @param size
+       * @returns {Promise<void>}
+       */
+      async function setProducts(page, size) {
+        const pageModel = {
+          page: page,
+          size: size
+        };
+
+        const productsData = await getProducts(pageModel);
+        if (productsData) {
+          //상품추가
+          addProductTemplates(productsData.content);
+        }
+        //PageModel 업데이트
+        updatePageModel(productsData.totalElements, productsData.totalPages);
+      }
+
+      /**
+       * 상품 추가
+       * @param products
+       */
+      function addProductTemplates(products) {
+        $('.wrap_container_item').empty();
+        for (const product of products) {
+          const templateStr = `<li class="wrap_item">
+                                <a class="figure" href="/product/${product.id}"><img src="${product.imgUrl}" alt=""></a>
+                                <div class="item_summary">
+                                    <span class="txt shop">${product.brand}</span>
+                                    <span class="txt item ellipsis_clamp2">${product.name}</span>
+                                    <span class="price">${joinComma(product.price) + '원'}</span>
+                                </div>
+                            </li>`;
+          $('.wrap_container_item').append(templateStr);
+        }
+      }
+    </script>
+</div>
+</html>
+

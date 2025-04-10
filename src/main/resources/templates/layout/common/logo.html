@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="logoFragment">
+    <h1 class="logo">
+        YEONstore
+    </h1>
+    <script>
+      $(function () {
+        // 화면 셋팅
+        //로고 클릭시 메인으로 이동
+        $('.logo').on('click', () => {
+          location.href = '/products';
+        });
+      });
+    </script>
+</th:block>

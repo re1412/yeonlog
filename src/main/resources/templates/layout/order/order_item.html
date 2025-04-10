@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="orderItemFragment">
+    <div class="container">
+        <h2>주문 상품</h2>
+        <div class="wrap_list_order">
+            <div class="wrap_item_picture">
+                <a class="figure"><img src="/assets/images/img_item_02.png"></a>
+            </div>
+            <table class="com_tb_data tb_order">
+                <tbody>
+                <!-- 기본 상품 list -->
+                <td class="item flex">
+                    <span id="txt_product_brand" class="txt shop">Californialife</span>
+                    <span id="txt_product_name"
+                          class="txt item ellipsis_clamp2">스포츠 리서치 오메가3 1250mg 180캡슐 rTG EPA DHA</span>
+                    <!-- [디자인 샘플] 개발에 활용 /design/03_주문결제.html 참고 -->
+                    <div class="wrap_option" th:if="${false}">
+                        <div class="tit">기본 옵션</div>
+                        <div class="data">2박스(2만원 할인)</div>
+                    </div>
+                </td>
+                <td class="quantity"><span id="txt_total_quantity" class="txt">2개</span></td>
+                <td class="price"><span id="txt_total_price" class="txt">94,000원</span></td>
+                </tr>
+                <!-- [디자인 샘플] 개발에 활용 /design/03_주문결제.html 참고 -->
+                <tr th:if="${false}">
+                    <td class="item flex">
+                        <div class="wrap_option">
+                            <div class="tit">추가 상품</div>
+                            <div class="data">멀티비타민 체험팩</div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+      let product = {};
+      let orderItem = {};
+
+      $(function () {
+        product = JSON.parse(sessionStorage.getItem('product')); // 상품
+        orderItem = JSON.parse(sessionStorage.getItem('orderItem')); // 주문상품
+
+        if (!product) {
+          location.href = '/';
+        }
+
+        // 화면 셋팅
+        //주문상품 정보 셋팅
+        $('.wrap_item_picture img').attr('src', product.imgUrl); // 상품이미지
+        $('#txt_product_brand').text(product.brand); // 브랜드
+        $('#txt_product_name').text(product.name); // 상품명
+        $('#txt_total_quantity').text(orderItem.quantity + '개'); // 구매수량
+        $('#txt_total_price').text(joinComma(orderItem.totalPrice) + '원'); // 가격
+
+      });
+
+      /**
+       * 주문상품 정보 반환
+       * @returns {{price: {totalPrice: number, discountPrice: number}, orderRequests: [{productQuantity: (Document.quantity|number|*), productCode, productPrice: ({totalPrice, discountPrice: number}|*)}]}}
+       */
+      function getOrderItemData() {
+        return {
+          price        : {
+            totalPrice   : orderItem.price * orderItem.quantity,
+            discountPrice: 0,
+          },
+          orderRequests: [
+            {
+              productCode    : product.code,
+              productPrice   : orderItem.price,
+              productQuantity: orderItem.quantity,
+            },
+          ],
+        };
+      }
+
+    </script>
+</th:block>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="paginationFragment">
+    <div class="wrap_paging">
+        <div class="com_paging">
+            <a title="이전" class="prev"><i class="ic_set ic_prev"></i></a>
+            <a th:if="${false}" href="#" class="active"><span class="txt">1</span></a>
+            <a th:if="${false}" href="#"><span class="txt">2</span></a>
+            <a title="다음" class="next"><i class="ic_set ic_next"></i></a>
+        </div>
+    </div>
+    <script>
+      let curPage = 0; // 현재 페이지
+      let listCount = 8; // 표기 상품 갯수
+      let btnCount = 10; // 표기 버튼 갯수
+      let start = 0; // 시작페이지
+
+      const pageModel = {
+        totalElements: 0,
+        totalPages   : 0
+      };
+
+      $(function () {
+        // 화면 셋팅
+        //이전 버튼 이벤트 등록
+        $('.prev').on('click', function () {
+          if (start <= 1) {
+            return;
+          }
+          refreshPage(btnCount * -1);
+        });
+
+        //다음 버튼 이벤트 등록
+        $('.next').on('click', function () {
+          if (start + btnCount - 1 >= pageModel.totalPages) {
+            return;
+          }
+          refreshPage(btnCount);
+        });
+      });
+
+      /**
+       * 페이지 버튼 셋팅
+       */
+      function setPagination() {
+        let pageTemplates = [];
+        const end = Math.min(pageModel.totalPages, start + btnCount);
+
+        for (let idx = 0; idx < end - start; idx++) {
+          pageTemplates.push(`<a key="${idx}" class="${curPage === start + idx ? 'active' : ''}"><span class="txt">${start + idx + 1}</span></a>`);
+        }
+
+        //페이지 버튼 다시 그리기
+        $('.com_paging a').not(':first').not(':last').remove();
+        $('.com_paging a:eq(0)').after(pageTemplates.join(''));
+
+        let pageBtn = $('.com_paging a').not(':first').not(':last');
+
+        //페이지 버튼 이벤트 셋팅
+        pageBtn.click(function () {
+          //css 변경
+          $(this).addClass('active');
+          pageBtn.not(this).removeClass('active');
+
+          //페이지 선택 이벤트 등록
+          const idx = $(this).attr('key');
+          selectPage(idx);
+        });
+      }
+
+      /**
+       * pageModel 수정
+       * @param totalElements
+       * @param totalPages
+       */
+      function updatePageModel(totalElements, totalPages) {
+        let befTotPage = pageModel.totalPages;
+        pageModel.totalElements = totalElements;
+        pageModel.totalPages = totalPages;
+
+        //총 페이지 수가 달라졌다면 버튼 다시 그리기
+        if (befTotPage !== totalPages) {
+          setPagination();
+        }
+      }
+
+      /**
+       * 페이지 선택
+       */
+      function selectPage(pageIdx) {
+        curPage = pageIdx;
+        changePage();
+      }
+
+      /**
+       * 이전, 다음 페이지 선택
+       */
+      function refreshPage(segment) {
+        start += segment;
+        curPage = start;
+        changePage();
+      }
+
+      /**
+       * 해당 페이지 상품 조회
+       */
+      function changePage() {
+        setProducts(curPage, listCount);
+      }
+
+    </script>
+</th:block>

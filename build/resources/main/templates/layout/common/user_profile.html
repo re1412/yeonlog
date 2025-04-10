@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="profileFragment">
+    <span class="wrap_profile">
+        <span class="com_profile">
+            <a href="#">
+                <img class="profile" alt="profile" title="">
+            </a>
+        </span>
+    </span>
+    <script type="module">
+      import {getUser} from '/assets/js/api/user.js';
+
+      const defaultImageURL = '/assets/images/profile_sample.png';
+
+      document.addEventListener('DOMContentLoaded', async function () {
+        //유저 데이터 존재여부 체크
+        const savedUser = JSON.parse(sessionStorage.getItem('user'));
+        if (savedUser) {
+          setUserProfile(savedUser);
+          return;
+        }
+
+        const user = await getUser();
+        if (user) {
+          setUserProfile(user);
+        }
+        sessionStorage.setItem('user', JSON.stringify(user));
+      });
+
+      /**
+       * 초기 user profile 셋팅
+       * @param user
+       */
+      function setUserProfile(user) {
+        $('.profile').attr('title', user.name);
+        $('.profile').attr('src', user.profileUrl ? user.profileUrl : defaultImageURL);
+      }
+    </script>
+</th:block>

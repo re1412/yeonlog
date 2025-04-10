@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="headerFragment">
+    <div class="section_header">
+        <div th:replace="layout/common/logo :: logoFragment"></div>
+        <div class="snb">
+            <div th:replace="layout/common/search_form :: searchFragment"></div>
+            <div th:replace="layout/common/user_profile :: profileFragment"></div>
+        </div>
+    </div>
+</th:block>

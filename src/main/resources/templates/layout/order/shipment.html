@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="shipmentFragment">
+    <div class="container">
+        <h2>배송 정보</h2>
+        <div class="com_form">
+            <div class="wrap_row">
+                <div class="row">
+                    <label class="form_tit cell">
+                        <span class="txt">받는 사람</span>
+                    </label>
+                    <div class="form_data cell">
+                        <div class="com_ipt">
+                            <input id="ipt_name" class="ipt_normal" type="text" value="김형">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="wrap_row">
+                <div class="row">
+                    <label class="form_tit cell">
+                        <span class="txt">휴대폰 번호</span>
+                    </label>
+                    <div class="form_data cell">
+                        <div class="com_ipt">
+                            <input id="ipt_mobile" class="ipt_normal" type="text" value="010-5858-3030">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="wrap_row">
+                <div class="row">
+                    <label class="form_tit cell">
+                        <span class="txt">배송지</span>
+                    </label>
+                    <div class="form_data cell">
+                        <div class="com_ipt">
+                            <input id="ipt_destination" class="ipt_normal" type="text"
+                                   value="(16878) 경기도 용인시 수지구 디지털밸리로 81">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="wrap_row">
+                <div class="row">
+                    <label class="form_tit cell">
+                        <span class="txt">요청 사항</span>
+                    </label>
+                    <div class="form_data cell">
+                        <div class="com_ipt">
+                            <input id="ipt_request" class="ipt_normal" type="text" value=""
+                                   placeholder="배송 시 요청사항을 입력해주세요.">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+      $(function () {
+        const user = JSON.parse(sessionStorage.getItem('user'));
+        if (!user) {
+          location.href = '/';
+        }
+
+        // 화면 셋팅
+        //배송지 정보 셋팅
+        $('#ipt_name').val(user.name); // 받는사람
+        $('#ipt_mobile').val(user.mobile); // 휴대폰 번호
+        if (user.addresses && user.addresses.length > 0) {
+          const zipCode = user.addresses[0].zipCode
+            ? '(' + user.addresses[0].zipCode + ')'
+            : '';
+
+          $('#ipt_destination').val(zipCode + " " + user.addresses[0].address); // 배송지
+        }
+        $('#ipt_request').val(''); //요청사항
+      });
+
+      /**
+       * 배송정보 반환
+       * @returns {{receiverAddress: (*|string|jQuery), receiver: (*|string|jQuery), requestForDelivery: (*|string|jQuery), receiverPhoneNumber: (*|string|jQuery)}}
+       */
+      function getShipmentData() {
+        return {
+          receiver           : $('#ipt_name').val(),
+          receiverPhoneNumber: $('#ipt_mobile').val(),
+          receiverAddress    : $('#ipt_destination').val(),
+          requestForDelivery : $('#ipt_request').val()
+        };
+      }
+
+    </script>
+</th:block>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="paymentFragment">
+    <div class="container">
+        <h2>결제 수단</h2>
+        <div class="com_toggle_nav">
+            <a href="#" class="btn_light_nav on">신용카드</a>
+            <a href="#" class="btn_light_nav">실시간 계좌이체</a>
+        </div>
+        <div id="div_card_form" class="com_form">
+            <div class="wrap_row">
+                <div class="row">
+                    <label class="form_tit cell">
+                        <span class="txt">카드 종류</span>
+                    </label>
+                    <div class="form_data cell">
+                        <div class="com_slt">
+                            <select id="slt_payment_method" class="slt_normal">
+                                <option selected="" disabled="">선택하세요.</option>
+                                <option>Category1</option>
+                                <option>Category2</option>
+                                <option>Category3</option>
+                                <option>Category4</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="wrap_row">
+                <div class="row">
+                    <label class="form_tit cell">
+                        <span class="txt">할부</span>
+                    </label>
+                    <div class="form_data cell">
+                        <div class="com_slt">
+                            <select id="slt_installment_plan" class="slt_normal">
+                                <option selected="" disabled="">선택하세요.</option>
+                                <option>Category1</option>
+                                <option>Category2</option>
+                                <option>Category3</option>
+                                <option>Category4</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/assets/js/constant/constants.js"></script>
+    <script>
+      const curPayOption = {
+        key: "CREDITCARD"
+      }; // 현재 결제방법 (초기값:신용카드)
+
+      $(function () {
+        // 화면 셋팅
+        setPayment(); //결제수단
+        setCardType(); //카드종류
+        setInstallmentPlan(); //할부
+      });
+
+      /**
+       * 결제 수단 셋팅 (button)
+       */
+      function setPayment() {
+        let paymentTemplates = [];
+
+        for (let method of payment.method) {
+          paymentTemplates.push(`<a key="${method.key}" class="btn_light_nav ${curPayOption.key === method.key ? 'on' : ''}">${method.name}</a>`);
+        }
+
+        $('.com_toggle_nav').empty();
+        $('.com_toggle_nav').append(paymentTemplates.join(''));
+
+        let paymentBtn = $('.com_toggle_nav .btn_light_nav');
+
+        paymentBtn.click(function () {
+          //css 등록
+          $(this).addClass('on');
+          paymentBtn.not(this).removeClass('on');
+
+          //버튼 이벤트 등록
+          const key = $(this).attr('key');
+          curPayOption.key = key;
+          //신용카드일 경우에만 화면 표기
+          if (key === 'CREDITCARD') {
+            $('#div_card_form').show()
+          } else {
+            $('#div_card_form').hide();
+          }
+        });
+      }
+
+      /**
+       * 카드 종류 셋팅 (selectBox)
+       */
+      function setCardType() {
+        $('#slt_payment_method').empty();
+        $.each(paymentMethod, function (idx, method) {
+          $("#slt_payment_method").append($('<option>', {'value': idx}).text(method.cardCompany));
+        });
+
+        $('#slt_payment_method').on('click', function() {
+          const selectedIdx = $(this).val();
+
+          $('#slt_installment_plan').empty();
+          $.each(paymentMethod[selectedIdx].monthlyInstallmentPlan, function (idx, monthlyInstallmentPlan) {
+            $("#slt_installment_plan").append($('<option>', {'value': monthlyInstallmentPlan.value}).text(monthlyInstallmentPlan.name));
+          });
+        });
+      }
+
+      /**
+       * 할부 셋팅 (selectBox)
+       */
+      function setInstallmentPlan(){
+        //할부
+        $('#slt_installment_plan').empty();
+        $.each(paymentMethod[0].monthlyInstallmentPlan, function (idx, monthlyInstallmentPlan) {
+          $("#slt_installment_plan").append($('<option>', {'value': monthlyInstallmentPlan.value}).text(monthlyInstallmentPlan.name));
+        });
+
+      }
+
+      /**
+       * 결제정보 반환
+       * @returns {{payType: string}}
+       */
+      function getPaymentData() {
+        let data = {
+          payType: curPayOption.key,
+        };
+
+        if (curPayOption.key === 'CREDITCARD') {
+          const selectedCardIdx = $('#slt_payment_method option:selected').val(); // 카드선택값
+          const selectedInstallIdx = $('#slt_installment_plan option:selected').val(); // 할부 선택값
+
+          const method = paymentMethod[selectedCardIdx];
+          data.cardType = method.brand;
+          data.installment = method.monthlyInstallmentPlan[selectedInstallIdx].value > 0;
+          data.monthlyInstallment = paymentMethod[selectedCardIdx].monthlyInstallmentPlan[selectedInstallIdx].value;
+        }
+        return data;
+      }
+    </script>
+</th:block>

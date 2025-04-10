@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/main}">
+<div class="section_body" layout:fragment="content">
+    <div class="section_content">
+        <div class="content_body">
+            <div class="wrap_item_detail">
+                <div class="wrap_item_picture">
+                    <img class="img_item detail" src="/assets/images/img_item_02.png"/>
+                </div>
+                <div class="wrap_item_info">
+                    <div class="item_summary">
+                        <span class="txt shop brand">Californialife</span>
+                        <span class="txt item ellipsis_clamp2 name">스포츠 리서치 오메가3 1250mg 180캡슐 rTG EPA DHA</span>
+                        <span class="price">48,000원</span>
+                    </div>
+
+                    <!-- [디자인 샘플] 개발에 활용 /design/02_제품상세.html 참고 -->
+                    <div class="item_option" >
+                        <div class="wrap_form_static">
+                            <div class="com_form ">
+                                <div class="wrap_row option">
+                                    <div class="row">
+                                        <label class="form_tit cell">옵션 선택</label>
+                                        <div class="form_data cell">
+                                            <div class="com_slt">
+                                                <select id="slt_option" class="slt_normal">
+                                                    <option selected="" disabled="">
+                                                        기본 옵션 선택
+                                                    </option>
+                                                    <option value="-1">1박스(기본)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="wrap_row extension">
+                                    <div class="row">
+                                        <label class="form_tit cell">추가 상품</label>
+                                        <div class="form_data cell">
+                                            <div class="com_slt">
+                                                <select id="slt_extension" class="slt_normal">
+                                                    <option selected="" disabled="">
+                                                        추가 상품 선택
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 상품 주문 정보 -->
+                    <div class="item_option_unit">
+                    </div>
+
+                    <!-- 금액 처리 -->
+                    <div class="item_total">
+                        <span class="txt total">총 금액(VAT포함)</span>
+                        <span id="txt_total_price" class="txt price">76,000원</span>
+                        <a class="major large flex"><span class="txt">구매하기</span></a>
+                    </div>
+                </div>
+                <!--//right section-->
+            </div>
+        </div>
+    </div>
+    <script src="/assets/js/api/product.js"></script>
+    <script>
+      let curProduct = {}; // 현재 상품정보
+      let optionPrice = 0;
+      let optionName = '';
+      let totalPrice = 0;
+
+      $(function () {
+
+        const productId = location.href.split('/').pop(); //상품ID
+
+        // 화면 셋팅
+        /**
+         * 가격 표기 이벤트
+         */
+        const changePrice = () => {
+          console.log('a');
+          $('#txt_price').text(purchasePrice());
+          $('#txt_total_price').text(purchasePrice());
+        }
+
+        // 수량 변동시 가격 변경 이벤트 등록
+        $('#ipt_quantity').on('input', changePrice);
+        $('#ipt_quantity').on('keyup', function (event) {
+          if (event.key === 'Enter' || event.keyCode === 13) {
+            changePrice();
+          }
+        });
+
+        // 상품 옵션 선택 이벤트 등록
+        $('#slt_option').on('change', selectOptionCard);
+
+        // 수량 마이너스 이벤트 등록
+        $(document).on('click', 'button[name="btn_minus"]', function() {
+          var $input = $(this).closest('div').find('input[name="ipt_quantity"]');
+          var newValue = Math.max(1, parseInt($input.val(), 10) - 1);
+          $input.val(newValue).trigger('input');
+        });
+
+        // 수량 플러스 이벤트 등록
+        $(document).on('click', 'button[name="btn_plus"]', function() {
+          var $input = $(this).closest('div').find('input[name="ipt_quantity"]');
+          var newValue = Math.min(parseInt($input.val(), 10) + 1, 10);
+          $input.val(newValue).trigger('input');
+        });
+        // 구매하기 버튼 이벤트 등록
+        $('.item_total a').on('click', purchase);
+
+        //상품 상세정보 셋팅
+        setProduct(productId);
+      });
+
+      /**
+       * 초기 상품 상세정보 셋팅
+       * @param productId
+       * @returns {Promise<void>}
+       */
+      async function setProduct(productId) {
+        curProduct = await getProduct(productId);
+
+        //사진
+        $('.wrap_item_picture img').attr('src', curProduct.imgUrl);
+
+        //상품정보 summary
+        const summary = $('.item_summary');
+        summary.find('.brand').text(curProduct.brand);
+        summary.find('.name').text(curProduct.name);
+        summary.find('.price').text(productBasePrice());
+
+        //item 내용
+        if(curProduct.productOption.length == 0){
+            $('.wrap_row.option').remove();
+            initItem();
+        } else {
+            curProduct.productOption.forEach(function(option, index) {
+                var productOption = $('<option>', {
+                    value: index, // 값 설정
+                    text: option.name + ' (+' + joinComma(option.price) + '원)' // 텍스트 설정
+                });
+
+                $('#slt_option').append(productOption);
+            });
+        }
+
+        if(curProduct.productExtension.length == 0){
+            $('.wrap_row.extension').remove();
+        } else {
+            curProduct.productExtension.forEach(function(extension, index) {
+                var productExtension = $('<option>', {
+                    value: index, // 값 설정
+                    text: extension.name + ' (+' + joinComma(extension.price) + '원)' // 텍스트 설정
+                });
+
+                $('#slt_extension').append(productExtension);
+            });
+        }
+
+        //total
+        $('.item_total .price').text(purchasePrice());
+      }
+
+      /**
+       * 현재 상품 옵션 선택
+       */
+      function selectOptionCard(event) {
+        optionIdx = $(event.target).val();
+        if(optionIdx == -1){
+            optionPrice = 0;
+        } else {
+            optionPrice = curProduct.productOption[optionIdx].price;
+        }
+        optionName = ' / ' + $(this).find('option:selected').text();
+        initItem();
+        $('#txt_total_price').text(joinComma(totalPrice) + '원');
+      }
+
+      /**
+       * 현재 상품 정보 카드
+       */
+       function initItem() {
+        const item = $('.item_option_unit');
+        var addInfoCard = ''+
+            '<div class="wrap_option">'+
+                '<label class="tit ellipsis name">'+ curProduct.name + optionName +'</label>'+
+                '<span class="com_number">'+
+                    '<button name="btn_minus" class="minus"><span class="ic_set ic_minus"></span></button>'+
+                    '<input name="ipt_quantity" class="ipt_normal" type="number" min="1" max="10" value="1">'+
+                    '<button name="btn_plus" class="plus"><span class="ic_set ic_plus"></span></button>'+
+                '</span>'+
+                '<button class="del" title="삭제"><i class="ic_set ic_del"></i></button>'+
+                '<p class="txt_price">'+
+                    '<span name="txt_price" class="price">'+productBasePrice()+'</span>'+
+                '</p>'+
+            '</div>';
+        item.append(addInfoCard);
+        totalPrice += curProduct.price + optionPrice;
+       }
+
+      /**
+       * 현재 상품가격 표기값 반환
+       * @returns {string|*}
+       */
+      function productBasePrice() {
+        return joinComma(curProduct.price + optionPrice) + '원';
+      }
+
+      /**
+       * 총 구매 상품가격 표기값 반환
+       * @returns {string}
+       */
+      function purchasePrice() {
+        const price = curProduct.price + optionPrice;
+        const orderCount = getOrderCount();
+        console.log('1 '+price);
+        console.log('2 '+orderCount);
+        return joinComma(price * orderCount) + '원';
+      }
+
+      /**
+       * 구매하기
+       */
+      function purchase() {
+        const orderCount = getOrderCount();
+        const orderItem = {
+          imgUrl    : curProduct.imgUrl,
+          quantity  : orderCount,
+          price     : curProduct.price,
+          totalPrice: curProduct.price * orderCount,
+        };
+        sessionStorage.setItem('orderItem', JSON.stringify(orderItem));
+        sessionStorage.setItem('product', JSON.stringify(curProduct));
+        location.href = '/order/payment';
+      }
+
+      /**
+       * 현재 상품수량 반환
+       * @returns {number}
+       */
+      function getOrderCount() {
+        return parseInt($('input[name="ipt_quantity"]').val());
+      }
+
+    </script>
+</div>
+</html>
